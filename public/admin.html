@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kesif Portali - Admin Paneli</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        header {
+            background-color: black;
+            color: white;
+            padding: 5px; /* Daha ince arka plan */
+            text-align: left;
+        }
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            text-align: center;
+        }
+        #adminPanel {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kesif Portali</h1>
+    </header>
+
+    <h2>Admin Paneli</h2>
+    <form id="loginForm" onsubmit="return login(event)">
+        <input type="password" id="password" placeholder="Şifre" required />
+        <button type="submit">Giriş Yap</button>
+    </form>
+
+    <div id="adminPanel" style="display:none;">
+        <h2>Bilgi Ekle</h2>
+        <input type="text" id="title" placeholder="Başlık" required />
+<textarea id="description" placeholder="Açıklama" required></textarea>
+        <input type="text" id="winners" placeholder="Kazananlar" />
+        <button onclick="addInfo()">Ekle</button>
+
+        <div id="message"></div>
+    </div>
+
+    <footer>
+        <h3>Bize Ulaşın</h3>
+        <p>Email: info@kesifportali.com</p>
+        <p>Telefon: 123-456-7890</p>
+    </footer>
+
+    <script>
+        function login(event) {
+            event.preventDefault(); // Formun otomatik olarak gönderilmesini engelle
+            const password = document.getElementById('password').value;
+
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Giriş başarılı olduğunda admin panelini göster
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('adminPanel').style.display = 'block';
+                } else {
+                    alert('Yanlış şifre!');
+                }
+            });
+        }
+
+        function addInfo() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const winners = document.getElementById('winners').value;
+
+            fetch('/api/add-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ title, description, winners }),
+            })
+            .then(response => response.json())
+            .then(data => {
+document.getElementById('message').innerText = data.message;
+                document.getElementById('title').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('winners').value = '';
+            });
+        }
+    </script>
+</body>
+</html>
