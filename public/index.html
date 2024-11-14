@@ -1,0 +1,121 @@
+ <!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kesif Portali</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        header {
+            background-color: black;
+            color: white;
+            padding: 5px; /* Daha ince arka plan */
+            text-align: left;
+        }
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            text-align: center;
+        }
+        .info-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kesif Portali</h1>
+    </header>
+
+    <h2>Merhaba, hoş geldiniz!</h2>
+    <p>Hangi bilgiye bakmak istersiniz?</p>
+
+    <!-- Arama Çubuğu -->
+    <input type="text" id="search" placeholder="Arama yapın..." />
+    <button onclick="search()">Ara</button>
+
+    <div id="results"></div>
+
+    <footer>
+        <h3>Bize Ulaşın</h3>
+        <p>Email: info@kesifportali.com</p>
+        <p>Telefon: 123-456-7890</p>
+    </footer>
+
+    <script>
+        function openInfoPage(info) {
+            const newWindow = window.open('', '_blank'); // Yeni bir sekme aç
+            newWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="tr">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>${info.title}</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                        }
+                        header {
+                            background-color: black;
+                            color: white;
+                            padding: 5px;
+                            text-align: left;
+                        }
+                        footer {
+                            margin-top: 20px;
+                            padding: 10px;
+                            background-color: #f1f1f1;
+                            text-align: center;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <header>
+                        <h1>Kesif Portali</h1>
+                    </header>
+                    <h2>${info.title}</h2>
+                    <p>${info.description}</p>
+                    <p><strong>Kazananlar:</strong> ${info.winners}</p>
+                    <footer>
+                        <h3>Bize Ulaşın</h3>
+                        <p>Email: info@kesifportali.com</p>
+                        <p>Telefon: 123-456-7890</p>
+                    </footer>
+                </body>
+                </html>
+            `);
+            newWindow.document.close(); // Yeni sekmeyi kapat
+        }
+
+        function search() {
+            const query = document.getElementById('search').value;
+fetch(`/api/search?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = ''; // Önceki sonuçları temizle
+
+                    if (data.results.length > 0) {
+                        data.results.forEach(info => {
+                            const infoDiv = document.createElement('div');
+                            infoDiv.className = 'info-item';
+                            infoDiv.innerHTML = `<strong>${info.title}</strong><br><button onclick='openInfoPage(${JSON.stringify(info)})'>Detayları Göster</button>`;
+                            resultsDiv.appendChild(infoDiv);
+                        });
+                    } else {
+                        resultsDiv.innerHTML = '<p>Sonuç bulunamadı.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                });
+        }
+    </script>
+</body>
+</html>
