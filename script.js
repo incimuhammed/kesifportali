@@ -18,3 +18,4 @@ document.getElementById('infoForm').addEventListener('submit', function(event) {
         document.getElementById('infoForm').reset();
     })
     .catch(error => console.error('Hata:', error));
+          });
