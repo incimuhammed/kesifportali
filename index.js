@@ -3,18 +3,32 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer'); // Multer'ı içe aktar
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static('public')); // Statik dosyaları 'public' klasöründen sun
+app.use('/uploads', express.static('uploads')); // 'uploads/' dizinini statik olarak sun
 
 let infoList = [];
-const ADMIN_SIFRE = process.env.ADMIN_SIFRE;
+const ADMIN_PASSWORD = 'admin123';
 
+// Resim yükleme ayarları
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Resimleri 'uploads/' dizinine kaydet
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // Benzersiz bir isim ver
+    }
+});
 
+const upload = multer({ storage: storage });
+
+// JSON dosyasını oku ve bilgileri yükle
 function loadInfoList() {
     if (fs.existsSync('data.json')) {
         const data = fs.readFileSync('data.json');
@@ -22,35 +36,28 @@ function loadInfoList() {
     }
 }
 
-
+// JSON dosyasını güncelle
 function saveInfoList() {
     fs.writeFileSync('data.json', JSON.stringify(infoList, null, 2));
 }
 
-
-app.post('/api/add-info', (req, res) => {
+// Bilgi ekleme API'si
+app.post('/api/add-info', upload.single('image'), (req, res) => {
     const { title, description, winners } = req.body;
-    if (!title || !description) {
-        return res.status(400).json({ message: 'Başlık ve açıklama gereklidir.' });
-    }
-    infoList.push({ title, description, winners });
-    saveInfoList();
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null; // Yüklenen resmin yolu
+    infoList.push({ title, description, winners, image: imagePath });
+    saveInfoList(); // Bilgileri kaydet
     res.json({ message: 'Bilgi eklendi!' });
 });
 
-
+// Arama API'si
 app.get('/api/search', (req, res) => {
-    const query = req.query.query ? req.query.query.toLowerCase() : '';
-    const results = infoList.filter(info => info.title.toLowerCase().includes(query));
-    res.json({ results });
-});
-app.get('/api/search', (req, res) => {
-    const query = req.query.query ? req.query.query.toLowerCase() : '';
+    const query = req.query.query.toLowerCase();
     const results = infoList.filter(info => info.title.toLowerCase().includes(query));
     res.json({ results });
 });
 
-
+// Bilgi detay API'si
 app.get('/api/info/:title', (req, res) => {
     const title = req.params.title;
     const info = infoList.find(info => info.title === title);
@@ -61,31 +68,30 @@ app.get('/api/info/:title', (req, res) => {
     }
 });
 
-
+// Admin giriş API'si
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
-    console.log('girilen sifre:', password); 
-    if (password === ADMIN_SIFRE) {
+    if (password === ADMIN_PASSWORD) {
         res.json({ message: 'Giriş başarılı!' });
     } else {
         res.status(403).json({ message: 'Yanlış şifre!' });
     }
 });
 
-
+// Ana sayfa
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-
+// Admin paneli
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-
+// Uygulama başlatıldığında bilgileri yükle
 loadInfoList();
 
-
+// Sunucuyu başlat
 app.listen(PORT, () => {
     console.log(`Sunucu http://localhost:${PORT} adresinde çalışıyor.`);
 });
