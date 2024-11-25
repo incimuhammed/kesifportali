@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -24,6 +24,10 @@
             border: 1px solid #ccc;
             padding: 10px;
             margin: 5px 0;
+        }
+        img {
+            max-width: 100%; /* Resmi ekran boyutuna göre ayarla */
+            height: auto; /* Yüksekliği otomatik ayarla */
         }
     </style>
 </head>
@@ -59,7 +63,7 @@
                     <title>${info.title}</title>
                     <style>
                         body {
-                            font-family: Arial, sans-serif;
+ font-family: Arial, sans-serif;
                         }
                         header {
                             background-color: black;
@@ -73,6 +77,10 @@
                             background-color: #f1f1f1;
                             text-align: center;
                         }
+                        img {
+                            max-width: 100%; /* Resmi ekran boyutuna göre ayarla */
+                            height: auto; /* Yüksekliği otomatik ayarla */
+                        }
                     </style>
                 </head>
                 <body>
@@ -80,8 +88,11 @@
                         <h1>Kesif Portali</h1>
                     </header>
                     <h2>${info.title}</h2>
-                    <p>${info.description}</p>
-                    <p><strong>Kazananlar:</strong> ${info.winners}</p>
+                    
+               <p>${info.description}</p>
+                    <p>
+                    <img src="${info.image}" > 
+                    <strong>Kazananlar:</strong> ${info.winners}</p>
                     <footer>
                         <h3>Bize Ulaşın</h3>
                         <p>Email: info@kesifportali.com</p>
@@ -94,8 +105,8 @@
         }
 
         function search() {
-            const query = document.getElementById('search').value;
-fetch(`/api/search?query=${encodeURIComponent(query)}`)
+const query = document.getElementById('search').value;
+            fetch(`/api/search?query=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     const resultsDiv = document.getElementById('results');
@@ -109,13 +120,13 @@ fetch(`/api/search?query=${encodeURIComponent(query)}`)
                             resultsDiv.appendChild(infoDiv);
                         });
                     } else {
-                        resultsDiv.innerHTML = '<p>Sonuç bulunamadı.</p>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Hata:', error);
-                });
-        }
-    </script>
-</body>
-</html>
+                                                    resultsDiv.innerHTML = '<p>Sonuç bulunamadı.</p>';
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Hata:', error);
+                                            });
+                                    }
+                                </script>
+                            </body>
+</html> 
