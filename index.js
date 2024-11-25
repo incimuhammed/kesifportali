@@ -14,7 +14,7 @@ app.use(express.static('public')); // Statik dosyaları 'public' klasöründen s
 app.use('/uploads', express.static('uploads')); // 'uploads/' dizinini statik olarak sun
 
 let infoList = [];
-const ADMIN_PASSWORD = 'admin123';
+const ADMIN_PASSWORD = process.env.ADMIN_SIFRE;
 
 // Resim yükleme ayarları
 const storage = multer.diskStorage({
